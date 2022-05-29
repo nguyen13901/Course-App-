@@ -1,3 +1,4 @@
 from .Category import CategorySerializer
 from .Course import CourseSerializer
-from .Lesson import LessonSerializer
+from .Tag import TagSerializer
+from .Lesson import LessonSerializer, LessonDetailSerializer
