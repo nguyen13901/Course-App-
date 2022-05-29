@@ -41,7 +41,25 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'CourseApp',
     'rest_framework',
+    'oauth2_provider',
+    'drf_yasg',
 ]
+
+# OAUTH2_PROVIDER = {
+#     # this is the list of available scopes
+#     'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'}
+# }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    )
+}
+
+OAUTH2_INFO = {
+    "client_id" : "sbN6W2sHglvhrT9bJH7AhIbi73MaSL7mrUzVwDMp",
+    "client_secret" : "nKnMUyEI8J5zKmAPhKYaHpKfcUC9BVGWFoP3MnaD7c9oLIFp4xw9GMCvUvTYbOiADFkIVi2ub7REde4VQEMVp9YJ6296GvK6Jjny5OzRRhltOQh3mtYwG6m9ODuKRKJA",
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
