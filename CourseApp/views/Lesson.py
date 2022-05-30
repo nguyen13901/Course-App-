@@ -1,11 +1,17 @@
+from typing import Union
+
+from django.db.models import F
 from django.http import Http404
 from rest_framework import viewsets, generics, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from CourseApp.models import Lesson, Tag, Comment
+from CourseApp.models import Lesson, Tag, Comment, Action, Rating, LessonView
 from CourseApp.serializers import LessonDetailSerializer, TagSerializer
+from CourseApp.serializers.Action import ActionSerializer
 from CourseApp.serializers.Comment import CommentSerializer
+from CourseApp.serializers.LessonView import LessonViewSerializer
+from CourseApp.serializers.Rating import RatingSerializer
 
 
 class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
@@ -13,7 +19,7 @@ class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
     serializer_class = LessonDetailSerializer
 
     def get_permissions(self):
-        if self.action == "add_comments":
+        if self.action in ["add_comments", "take_action", "rating"]:
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
 
@@ -43,3 +49,38 @@ class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
 
             return Response(CommentSerializer(c).data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["POST"], url_path="like")
+    def take_action(self, request, pk):
+        try:
+            action_type = int(request.data['type'])
+        except (IndexError, ValueError):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            action = Action.objects.create(type=action_type,
+                                           lesson=self.get_object(),
+                                           creator=request.user)
+            return Response(ActionSerializer(action).data,
+                            status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["POST"], url_path="rating")
+    def rate(self, request, pk):
+        try:
+            rating = int(request.data['rating'])
+        except (IndexError, ValueError):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            r = Rating.objects.create(rate=rating,
+                                      lesson=self.get_object(),
+                                      creator=request.user)
+            return Response(RatingSerializer(r).data,
+                            status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=True, url_path="views")
+    def incr_view(self, request, pk):
+        v, created = LessonView.objects.get_or_create(lesson=self.get_object())
+        v.views = F('views') + 1
+        v.save()
+        v.refresh_from_db()
+
+        return Response(LessonViewSerializer(v).data, status=status.HTTP_200_OK)

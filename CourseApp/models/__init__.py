@@ -5,3 +5,7 @@ from .Category import Category
 from .Course import Course
 from .Lesson import Lesson
 from .Comment import Comment
+from .ActionBase import ActionBase
+from .Action import Action
+from .Rating import Rating
+from .LessonView import LessonView
