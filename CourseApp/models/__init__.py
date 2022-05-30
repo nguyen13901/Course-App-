@@ -4,3 +4,4 @@ from .User import User
 from .Category import Category
 from .Course import Course
 from .Lesson import Lesson
+from .Comment import Comment
